@@ -23,19 +23,18 @@
  *
  */
 package org.hibernate.id;
+import org.hibernate.HibernateException;
+import org.hibernate.internal.CoreMessageLogger;
+import org.hibernate.type.CustomType;
+import org.hibernate.type.Type;
+import org.jboss.logging.Logger;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.jboss.logging.Logger;
-
-import org.hibernate.HibernateException;
-import org.hibernate.internal.CoreMessageLogger;
-import org.hibernate.type.CustomType;
-import org.hibernate.type.Type;
 
 /**
  * Factory and helper methods for {@link IdentifierGenerator} framework.
@@ -76,17 +75,18 @@ public final class IdentifierGeneratorHelper {
 	/**
 	 * Get the generated identifier when using identity columns
 	 *
-	 * @param rs The result set from which to extract the the generated identity.
-	 * @param type The expected type mapping for the identity value.
-	 * @return The generated identity value
+	 *
+     * @param rs The result set from which to extract the the generated identity.
+     * @param identifier
+     *@param type The expected type mapping for the identity value.  @return The generated identity value
 	 * @throws SQLException Can be thrown while accessing the result set
 	 * @throws HibernateException Indicates a problem reading back a generated identity value.
 	 */
-	public static Serializable getGeneratedIdentity(ResultSet rs, Type type) throws SQLException, HibernateException {
+	public static Serializable getGeneratedIdentity(ResultSet rs, String identifier, Type type) throws SQLException, HibernateException {
 		if ( !rs.next() ) {
 			throw new HibernateException( "The database returned no natively generated identity value" );
 		}
-		final Serializable id = get( rs, type );
+		final Serializable id = get( rs, identifier, type );
 		LOG.debugf( "Natively generated identity: %s", id );
 		return id;
 	}
@@ -95,13 +95,14 @@ public final class IdentifierGeneratorHelper {
 	 * Extract the value from the result set (which is assumed to already have been positioned to the apopriate row)
 	 * and wrp it in the appropriate Java numeric type.
 	 *
-	 * @param rs The result set from which to extract the value.
-	 * @param type The expected type of the value.
-	 * @return The extracted value.
+	 *
+     * @param rs The result set from which to extract the value.
+     * @param identifier
+     *@param type The expected type of the value.  @return The extracted value.
 	 * @throws SQLException Indicates problems access the result set
 	 * @throws IdentifierGenerationException Indicates an unknown type.
 	 */
-	public static Serializable get(ResultSet rs, Type type) throws SQLException, IdentifierGenerationException {
+	public static Serializable get(ResultSet rs, String identifier, Type type) throws SQLException, IdentifierGenerationException {
 		if ( ResultSetIdentifierConsumer.class.isInstance( type ) ) {
 			return ( ( ResultSetIdentifierConsumer ) type ).consumeIdentifier( rs );
 		}
@@ -114,10 +115,12 @@ public final class IdentifierGeneratorHelper {
 
 		Class clazz = type.getReturnedClass();
 		if ( clazz == Long.class ) {
-			return rs.getLong( 1 );
+            return rs.getLong(identifier);
+//			return rs.getLong( 1 );
 		}
 		else if ( clazz == Integer.class ) {
-			return rs.getInt( 1 );
+            return rs.getInt(identifier);
+//			return rs.getInt( 1 );
 		}
 		else if ( clazz == Short.class ) {
 			return rs.getShort( 1 );
