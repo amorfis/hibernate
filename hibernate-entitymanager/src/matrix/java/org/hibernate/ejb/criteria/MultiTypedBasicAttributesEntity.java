@@ -21,33 +21,52 @@
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
  */
-package org.hibernate.test.flush;
+package org.hibernate.ejb.criteria;
 
-import java.util.Collection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import org.hibernate.event.spi.PreUpdateEvent;
-import org.hibernate.event.spi.PreUpdateEventListener;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
+ * An entity with multiple attributes of basic type for use in testing using those types/attributes
+ * in queries.
+ *
  * @author Steve Ebersole
  */
-public class InitializingPreUpdateEventListener implements PreUpdateEventListener {
-	@Override
-	public boolean onPreUpdate(PreUpdateEvent event) {
-        final Object entity = event.getEntity();
-        final Object[] oldValues = event.getOldState();
-        final String[] properties = event.getPersister().getPropertyNames();
+@Entity
+@Table(name="ENT_W_MANY_COLS")
+public class MultiTypedBasicAttributesEntity {
+	@Id
+	@GeneratedValue( generator = "increment" )
+	@GenericGenerator( name = "increment", strategy = "increment" )
+	private Long id;
+	private byte[] someBytes;
+	private Byte[] someWrappedBytes;
 
-        // Iterate through all fields of the updated object
-        for ( int i = 0; i < properties.length; i++ ) {
-            if (oldValues != null && oldValues[i] instanceof Collection ) {
-                final Collection col = (Collection) oldValues[i];
-				// force initialization of collection to illustrate HHH-2763
-				for ( Object element : col ) {
-					element.toString();
-                }
-            }
-        }
-        return true;
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public byte[] getSomeBytes() {
+		return someBytes;
+	}
+
+	public void setSomeBytes(byte[] someBytes) {
+		this.someBytes = someBytes;
+	}
+
+	public Byte[] getSomeWrappedBytes() {
+		return someWrappedBytes;
+	}
+
+	public void setSomeWrappedBytes(Byte[] someWrappedBytes) {
+		this.someWrappedBytes = someWrappedBytes;
 	}
 }
