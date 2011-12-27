@@ -113,32 +113,56 @@ public final class IdentifierGeneratorHelper {
 			}
 		}
 
-		Class clazz = type.getReturnedClass();
-		if ( clazz == Long.class ) {
-            return rs.getLong(identifier);
-//			return rs.getLong( 1 );
-		}
-		else if ( clazz == Integer.class ) {
-            return rs.getInt(identifier);
-//			return rs.getInt( 1 );
-		}
-		else if ( clazz == Short.class ) {
-			return rs.getShort( 1 );
-		}
-		else if ( clazz == String.class ) {
-			return rs.getString( 1 );
-		}
-		else if ( clazz == BigInteger.class ) {
-			return rs.getBigDecimal( 1 ).setScale( 0, BigDecimal.ROUND_UNNECESSARY ).toBigInteger();
-		}
-		else if ( clazz == BigDecimal.class ) {
-			return rs.getBigDecimal( 1 ).setScale( 0, BigDecimal.ROUND_UNNECESSARY );
-		}
-		else {
-			throw new IdentifierGenerationException(
-					"unrecognized id type : " + type.getName() + " -> " + clazz.getName()
-			);
-		}
+        Class clazz = type.getReturnedClass();
+        if (rs.getMetaData().getColumnCount() == 1) {
+            if ( clazz == Long.class ) {
+                return rs.getLong( 1 );
+            }
+            else if ( clazz == Integer.class ) {
+                return rs.getInt( 1 );
+            }
+            else if ( clazz == Short.class ) {
+                return rs.getShort( 1 );
+            }
+            else if ( clazz == String.class ) {
+                return rs.getString( 1 );
+            }
+            else if ( clazz == BigInteger.class ) {
+                return rs.getBigDecimal( 1 ).setScale( 0, BigDecimal.ROUND_UNNECESSARY ).toBigInteger();
+            }
+            else if ( clazz == BigDecimal.class ) {
+                return rs.getBigDecimal( 1 ).setScale( 0, BigDecimal.ROUND_UNNECESSARY );
+            }
+            else {
+                throw new IdentifierGenerationException(
+                        "unrecognized id type : " + type.getName() + " -> " + clazz.getName()
+                );
+            }
+        } else {
+            if ( clazz == Long.class ) {
+                return rs.getLong(identifier);
+            }
+            else if ( clazz == Integer.class ) {
+                return rs.getInt(identifier);
+            }
+            else if ( clazz == Short.class ) {
+                return rs.getShort(identifier);
+            }
+            else if ( clazz == String.class ) {
+                return rs.getString(identifier);
+            }
+            else if ( clazz == BigInteger.class ) {
+                return rs.getBigDecimal(identifier).setScale( 0, BigDecimal.ROUND_UNNECESSARY ).toBigInteger();
+            }
+            else if ( clazz == BigDecimal.class ) {
+                return rs.getBigDecimal(identifier).setScale( 0, BigDecimal.ROUND_UNNECESSARY );
+            }
+            else {
+                throw new IdentifierGenerationException(
+                        "unrecognized id type : " + type.getName() + " -> " + clazz.getName()
+                );
+            }
+        }
 	}
 
 	/**
