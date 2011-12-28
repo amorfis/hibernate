@@ -23,32 +23,7 @@
  */
 package org.hibernate.persister.entity;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.jboss.logging.Logger;
-
-import org.hibernate.AssertionFailure;
-import org.hibernate.EntityMode;
-import org.hibernate.FetchMode;
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.MappingException;
-import org.hibernate.QueryException;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.StaleStateException;
+import org.hibernate.*;
 import org.hibernate.bytecode.instrumentation.internal.FieldInterceptionHelper;
 import org.hibernate.bytecode.instrumentation.spi.FieldInterceptor;
 import org.hibernate.bytecode.instrumentation.spi.LazyPropertyInitializer;
@@ -62,17 +37,7 @@ import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.engine.OptimisticLockStyle;
 import org.hibernate.engine.internal.Versioning;
 import org.hibernate.engine.jdbc.batch.internal.BasicBatchKey;
-import org.hibernate.engine.spi.CascadeStyle;
-import org.hibernate.engine.spi.CascadingAction;
-import org.hibernate.engine.spi.EntityEntry;
-import org.hibernate.engine.spi.EntityKey;
-import org.hibernate.engine.spi.ExecuteUpdateResultCheckStyle;
-import org.hibernate.engine.spi.FilterDefinition;
-import org.hibernate.engine.spi.LoadQueryInfluencers;
-import org.hibernate.engine.spi.Mapping;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.engine.spi.ValueInclusion;
+import org.hibernate.engine.spi.*;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.PostInsertIdentifierGenerator;
 import org.hibernate.id.PostInsertIdentityPersister;
@@ -89,40 +54,29 @@ import org.hibernate.loader.entity.BatchingEntityLoader;
 import org.hibernate.loader.entity.CascadeEntityLoader;
 import org.hibernate.loader.entity.EntityLoader;
 import org.hibernate.loader.entity.UniqueEntityLoader;
-import org.hibernate.mapping.Column;
-import org.hibernate.mapping.Component;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.Property;
-import org.hibernate.mapping.Selectable;
+import org.hibernate.mapping.*;
 import org.hibernate.metadata.ClassMetadata;
-import org.hibernate.metamodel.binding.AssociationAttributeBinding;
-import org.hibernate.metamodel.binding.AttributeBinding;
-import org.hibernate.metamodel.binding.EntityBinding;
-import org.hibernate.metamodel.binding.SimpleValueBinding;
-import org.hibernate.metamodel.binding.SingularAttributeBinding;
+import org.hibernate.metamodel.binding.*;
 import org.hibernate.metamodel.relational.DerivedValue;
 import org.hibernate.metamodel.relational.Value;
 import org.hibernate.pretty.MessageHelper;
 import org.hibernate.property.BackrefPropertyAccessor;
 import org.hibernate.service.instrumentation.spi.InstrumentationService;
-import org.hibernate.sql.Alias;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Insert;
-import org.hibernate.sql.JoinFragment;
-import org.hibernate.sql.JoinType;
-import org.hibernate.sql.Select;
-import org.hibernate.sql.SelectFragment;
-import org.hibernate.sql.SimpleSelect;
-import org.hibernate.sql.Template;
-import org.hibernate.sql.Update;
+import org.hibernate.sql.*;
 import org.hibernate.tuple.entity.EntityMetamodel;
 import org.hibernate.tuple.entity.EntityTuplizer;
-import org.hibernate.type.AssociationType;
-import org.hibernate.type.CompositeType;
-import org.hibernate.type.EntityType;
-import org.hibernate.type.Type;
+import org.hibernate.type.*;
 import org.hibernate.type.TypeHelper;
-import org.hibernate.type.VersionType;
+import org.jboss.logging.Logger;
+
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Basic functionality for persisting an entity via JDBC
@@ -2754,7 +2708,10 @@ public abstract class AbstractEntityPersister
 				return object;
 			}
 		};
-		return identityDelegate.performInsert( sql, session, binder );
+
+        String[] identifiers = getIdentifierColumnNames();
+        
+		return identityDelegate.performInsert( sql, identifiers[0], session, binder );
 	}
 
 	public String getIdentitySelectString() {

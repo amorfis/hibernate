@@ -24,13 +24,6 @@
  */
 package org.hibernate.id;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Properties;
-
-import org.jboss.logging.Logger;
-
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
@@ -41,6 +34,12 @@ import org.hibernate.id.insert.InsertGeneratedIdentifierDelegate;
 import org.hibernate.internal.CoreMessageLogger;
 import org.hibernate.sql.Insert;
 import org.hibernate.type.Type;
+import org.jboss.logging.Logger;
+
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * A generator which combines sequence generation with immediate retrieval
@@ -105,11 +104,11 @@ public class SequenceIdentityGenerator extends SequenceGenerator
 		}
 
 		@Override
-        protected Serializable executeAndExtract(PreparedStatement insert) throws SQLException {
+        protected Serializable executeAndExtract(PreparedStatement insert, String identifier) throws SQLException {
 			insert.executeUpdate();
 			return IdentifierGeneratorHelper.getGeneratedIdentity(
 					insert.getGeneratedKeys(),
-			        getPersister().getIdentifierType()
+                    identifier, getPersister().getIdentifierType()
 			);
 		}
 	}
